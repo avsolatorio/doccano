@@ -23,7 +23,7 @@
         <v-card-title>
           <component
             :is="labelComponent"
-            :labels="labels"
+            :labels="filteredLabels"
             :annotations="teacherList"
             :single-label="project.singleClassClassification"
             @add="annotateLabel(project.id, example.id, $event)"
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { ref, toRefs, useContext, useFetch, watch } from '@nuxtjs/composition-api'
+import { ref, toRefs, useContext, useFetch, watch, computed } from '@nuxtjs/composition-api'
 import LayoutText from '@/components/tasks/layout/LayoutText'
 import ListMetadata from '@/components/tasks/metadata/ListMetadata'
 import AnnotationProgress from '@/components/tasks/sidebar/AnnotationProgress.vue'
@@ -116,11 +116,24 @@ export default {
       }
     })
 
+    const { labels } = toRefs(labelState)
+    const { example } = toRefs(exampleState)
+
+    const filteredLabels = computed(() => {
+      if (!example.value?.meta?.labels) return []
+      return labels.value.filter(label => example.value.meta.labels.includes(label.text))
+    })
+
+    window.labels = labels
+    window.example = example
+    window.filteredLabels = filteredLabels
+
     return {
       ...toRefs(labelState),
       ...toRefs(projectState),
       ...toRefs(teacherState),
       ...toRefs(exampleState),
+      filteredLabels,
       confirm,
       annotateLabel,
       annotateOrRemoveLabel,
