@@ -1,5 +1,5 @@
 <template>
-  <layout-text v-if="example.id">
+  <layout-text v-if="exampleReady">
     <template #header>
       <toolbar-laptop
         :doc-id="example.id"
@@ -119,9 +119,13 @@ export default {
     const { labels } = toRefs(labelState)
     const { example } = toRefs(exampleState)
 
+    const exampleReady = computed(() => {
+        return example.value?.id && Array.isArray(example.value?.meta?.suggested_labels)
+    })
+
     const filteredLabels = computed(() => {
-      if (!example.value?.meta?.labels) return []
-      return labels.value.filter(label => example.value.meta.labels.includes(label.text))
+      if (!example.value?.meta?.suggested_labels) return labels.value
+      return labels.value.filter(label => example.value.meta.suggested_labels.includes(label.text))
     })
 
     window.labels = labels
@@ -134,6 +138,7 @@ export default {
       ...toRefs(teacherState),
       ...toRefs(exampleState),
       filteredLabels,
+      exampleReady,
       confirm,
       annotateLabel,
       annotateOrRemoveLabel,
