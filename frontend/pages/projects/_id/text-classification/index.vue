@@ -120,13 +120,20 @@ export default {
     const { example } = toRefs(exampleState)
 
     const exampleReady = computed(() => {
-        return example.value?.id && Array.isArray(example.value?.meta?.suggested_labels)
+      return !!example.value?.id  // && !!example.value?.meta
     })
 
     const filteredLabels = computed(() => {
-      if (!example.value?.meta?.suggested_labels) return labels.value
-      return labels.value.filter(label => example.value.meta.suggested_labels.includes(label.text))
+      const all = labels.value
+      const metaLabels = example.value?.meta?.suggested_labels
+
+      if (Array.isArray(metaLabels)) {
+        return all.filter(label => metaLabels.includes(label.text))
+      } else {
+        return all  // fallback to all labels
+      }
     })
+
 
     window.labels = labels
     window.example = example
