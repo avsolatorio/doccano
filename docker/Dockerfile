@@ -32,10 +32,15 @@ WORKDIR /tmp
 COPY backend/pyproject.toml backend/poetry.lock /tmp/
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# Install pip and poetry separately
 RUN pip install -U --no-cache-dir pip==22.2.2 \
- && curl -sSL https://install.python-poetry.org | python - \
- && export PATH="/root/.local/bin:$PATH" \
- && poetry export --without-hashes -o /requirements.txt \
+ && pip install --upgrade pip setuptools wheel \
+ && pip install poetry
+
+ #&& curl -sSL https://install.python-poetry.org | python - \
+ #&& export PATH="/root/.local/bin:$PATH"
+
+RUN poetry export --without-hashes -o /requirements.txt \
  && echo "psycopg2-binary==2.8.6" >> /requirements.txt \
  && echo "django-heroku==0.3.1" >> /requirements.txt \
  && pip install --no-cache-dir -r /requirements.txt
